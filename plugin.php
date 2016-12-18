@@ -27,15 +27,33 @@ $tp_yourls_redirect_404['qs'] = 'shortUrl';
 yourls_add_action( 'redirect_keyword_not_found', 'tp_redirect_404' );
 yourls_add_action( 'loader_failed', 'tp_redirect_404' );
 
-function tp_redirect_404( $data ) {
+/* http://stackoverflow.com/a/8891890/1705056 */
+
+function tp_url_origin( $s, $use_forwarded_host = false ) {
+    $ssl      = ( ! empty( $s['HTTPS'] ) && $s['HTTPS'] == 'on' );
+    $sp       = strtolower( $s['SERVER_PROTOCOL'] );
+    $protocol = substr( $sp, 0, strpos( $sp, '/' ) ) . ( ( $ssl ) ? 's' : '' );
+    $port     = $s['SERVER_PORT'];
+    $port     = ( ( ! $ssl && $port=='80' ) || ( $ssl && $port=='443' ) ) ? '' : ':'.$port;
+    $host     = ( $use_forwarded_host && isset( $s['HTTP_X_FORWARDED_HOST'] ) ) ? $s['HTTP_X_FORWARDED_HOST'] : ( isset( $s['HTTP_HOST'] ) ? $s['HTTP_HOST'] : null );
+    $host     = isset( $host ) ? $host : $s['SERVER_NAME'] . $port;
+    return $protocol . '://' . $host;
+}
+
+function tp_full_url( $s, $use_forwarded_host = false ) {
+    return tp_url_origin( $s, $use_forwarded_host ) . $s['REQUEST_URI'];
+}
+
+function tp_redirect_404() {
     global $tp_yourls_redirect_404;
-    $shorturl = $data[0];
+
+    $absolute_url = tp_full_url( $_SERVER );
 
     $redirect_url = $tp_yourls_redirect_404['url'] .
         '?' .
         urlencode($tp_yourls_redirect_404['qs']) .
         '=' .
-        urlencode($shorturl);
+        urlencode($absolute_url);
 
     yourls_redirect( $redirect_url, 302 );
 }
