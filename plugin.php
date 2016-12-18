@@ -38,5 +38,4 @@ function tp_redirect_404( $data ) {
         urlencode($shorturl);
 
     yourls_redirect( $redirect_url, 302 );
-    die();
 }
