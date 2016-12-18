@@ -15,7 +15,7 @@ global $tp_yourls_redirect_404;
 */
 
 /* The url where 404 errors are redirected to */
-$tp_yourls_redirect_404['url'] = 'https://www.tepez.co.il/error-pages/short-url-not-found';
+$tp_yourls_redirect_404['url'] = 'https://www.tepez.co.il/error-pages/short-url-not-found/';
 
 /* The QS parameter where the short url is given */
 $tp_yourls_redirect_404['qs'] = 'shortUrl';
