@@ -15,7 +15,7 @@ global $tp_yourls_redirect_404;
 */
 
 /* The url where 404 errors are redirected to */
-$tp_yourls_redirect_404['url'] = 'https://www.tepez.co.il/error-pages/short-url-not-found/';
+$tp_yourls_redirect_404['url'] = $_ENV['YOURLS_REDIRECT_404_URL'];
 
 /* The QS parameter where the short url is given */
 $tp_yourls_redirect_404['qs'] = 'shortUrl';
@@ -24,11 +24,7 @@ $tp_yourls_redirect_404['qs'] = 'shortUrl';
 * DO NOT EDIT FARTHER
 */
 
-yourls_add_action( 'redirect_keyword_not_found', 'tp_redirect_404' );
-yourls_add_action( 'loader_failed', 'tp_redirect_404' );
-
-/* http://stackoverflow.com/a/8891890/1705056 */
-
+/* Source: http://stackoverflow.com/a/8891890/1705056 */
 function tp_url_origin( $s, $use_forwarded_host = false ) {
     $ssl      = ( ! empty( $s['HTTPS'] ) && $s['HTTPS'] == 'on' );
     $sp       = strtolower( $s['SERVER_PROTOCOL'] );
@@ -47,7 +43,7 @@ function tp_full_url( $s, $use_forwarded_host = false ) {
 function tp_redirect_404() {
     global $tp_yourls_redirect_404;
 
-    $absolute_url = tp_full_url( $_SERVER );
+    $absolute_url = tp_full_url( $_SERVER, true );
 
     $redirect_url = $tp_yourls_redirect_404['url'] .
         '?' .
@@ -56,4 +52,10 @@ function tp_redirect_404() {
         urlencode($absolute_url);
 
     yourls_redirect( $redirect_url, 302 );
+    exit;
+}
+
+if ($_ENV['ROOT_REDIRECT_URL']) {
+    yourls_add_action( 'redirect_keyword_not_found', 'tp_redirect_404' );
+    yourls_add_action( 'loader_failed', 'tp_redirect_404' );
 }
